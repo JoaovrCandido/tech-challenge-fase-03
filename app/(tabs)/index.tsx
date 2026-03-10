@@ -1,12 +1,17 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import FinancialDashboard from "@/components/FinancialDashboard";
+
+import { mockTransactions } from "@/mocks/transactions";
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-
+        <FinancialDashboard transaction={mockTransactions} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

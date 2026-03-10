@@ -131,7 +131,8 @@ const TransactionsList = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 20,
+    width: "100%",
   },
   emptyContainer: {
     padding: 16,
