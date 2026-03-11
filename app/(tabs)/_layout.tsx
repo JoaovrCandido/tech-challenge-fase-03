@@ -1,8 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useState } from "react";
 import BankHeader from "../../components/BankHeader";
 
 export default function TabsLayout() {
+    const [showBalance, setShowBalance] = useState(true);
+
+    const toggleBalance = () => {
+        setShowBalance((prev) => !prev);
+    };
     return (
         <Tabs
             screenOptions={{
@@ -11,6 +17,8 @@ export default function TabsLayout() {
                     <BankHeader
                         userName="Marciano"
                         balance="R$ 12.450,90"
+                        showBalance={showBalance}
+                        onToggleBalance={toggleBalance}
                     />
                 ),
                 tabBarStyle: {
