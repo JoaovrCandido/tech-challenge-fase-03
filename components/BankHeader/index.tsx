@@ -1,25 +1,28 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type BankHeaderProps = {
     userName?: string;
     balance?: string;
+    showBalance: boolean;
+    onToggleBalance: () => void;
 };
 
 export default function BankHeader({
     userName = "Marciano",
     balance = "R$ 12.450,90",
+    showBalance,
+    onToggleBalance,
+
 }: BankHeaderProps) {
+
+
     return (
         <View style={styles.wrapper}>
             <View style={styles.topBar}>
                 <View style={styles.leftContent}>
                     <View style={styles.logoCircle}>
-                        <Image
-                            source={require("../../assets/logo.png")}
-                            style={styles.logo}
-                            resizeMode="contain"
-                        />
+                        <Ionicons name="person-circle-outline" size={36} color="#ff5031" />
                     </View>
 
                     <View>
@@ -29,19 +32,28 @@ export default function BankHeader({
                 </View>
 
                 <View style={styles.actions}>
-                    <TouchableOpacity style={styles.iconButton}>
-                        <Ionicons name="eye-outline" size={20} color="#fff" />
+                    <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={onToggleBalance}
+                    >
+                        <Ionicons
+                            name={showBalance ? "eye-outline" : "eye-off-outline"}
+                            size={20}
+                            color="#ff5031"
+                        />
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.iconButton}>
-                        <Ionicons name="notifications-outline" size={20} color="#fff" />
+                        <Ionicons name="notifications-outline" size={20} color="#ff5031" />
                     </TouchableOpacity>
                 </View>
             </View>
 
             <View style={styles.balanceCard}>
                 <Text style={styles.balanceLabel}>Saldo em conta</Text>
-                <Text style={styles.balanceValue}>{balance}</Text>
+                <Text style={showBalance ? styles.balanceValue : styles.HideBalanceValue}>
+                    {showBalance ? balance : "••••••"}
+                </Text>
             </View>
         </View>
     );
@@ -54,6 +66,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingBottom: 20,
         height: 190,
+        marginBottom: 20,
     },
     topBar: {
         flexDirection: "row",
@@ -112,6 +125,12 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: "700",
         color: "#111",
+        marginTop: 8,
+    },
+    HideBalanceValue: {
+        fontSize: 28,
+        fontWeight: "700",
+        color: "#ff5031",
         marginTop: 8,
     },
 });
