@@ -98,10 +98,16 @@ const TransactionsList = ({
           <Text style={styles.transactionDesc}>
             {transaction.description || ""}
           </Text>
-          <Text style={styles.transactionValue}>
-            {formatCurrency(transaction.value)}
+          <Text style={[
+            styles.transactionValue,
+            transaction.type === "deposito"
+              ? styles.positiveValue
+              : styles.negativeValue,
+          ]}>
+            {transaction.type === "deposito" ? "+" : "-"} {formatCurrency(transaction.value)}
           </Text>
         </View>
+
       </View>
     );
   };
@@ -113,7 +119,7 @@ const TransactionsList = ({
 
   return (
     <View style={styles.container} accessibilityLiveRegion="polite">
-      <Text style={styles.title}>{title}</Text>
+      {/* <Text style={styles.title}>{title}</Text> */}
 
       <FlatList
         data={visibleTransactions}
@@ -131,8 +137,9 @@ const TransactionsList = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    width: "100%",
+    /* padding: 20,
+    width: "100%", */
+    backgroundColor: "#F4F6FA",
   },
   emptyContainer: {
     padding: 16,
@@ -210,6 +217,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     color: "#666",
   },
+  positiveValue: {
+    color: "#118C4F",
+  },
+  negativeValue: {
+    color: "#C62828",
+  }
 });
 
 export default TransactionsList;
