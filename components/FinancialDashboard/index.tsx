@@ -1,9 +1,15 @@
-import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Svg, { Circle, G } from "react-native-svg";
 
 import { Transaction } from "@/types";
-
 import {
   calculateBalance,
   calculateTotalDeposits,
@@ -19,6 +25,23 @@ interface FinancialDashboardProps {
 export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   transaction,
 }) => {
+  const [showDonut, setShowDonut] = useState(false);
+
+  const animValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    animValue.setValue(0);
+
+    Animated.sequence([
+      Animated.delay(1000),
+      Animated.timing(animValue, {
+        toValue: 1,
+        duration: 1500,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, [transaction]);
+
   const currentBalance = calculateBalance(transaction);
   const totalDeposits = calculateTotalDeposits(transaction);
   const totalTransfers = calculateTotalTransfers(transaction);
@@ -31,11 +54,9 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
 
     transaction.forEach((t) => {
       if (t.type === "") return;
-
       if (!dailyData[t.date]) {
         dailyData[t.date] = { date: t.date, deposito: 0, transferencia: 0 };
       }
-
       if (t.type === "deposito") dailyData[t.date].deposito += t.value;
       else if (t.type === "transferencia")
         dailyData[t.date].transferencia += t.value;
@@ -54,11 +75,7 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     const depositPct =
       totalVolume > 0 ? (totalDeposits / totalVolume) * 100 : 0;
 
-    return {
-      chartData,
-      maxDailyValue,
-      depositPct,
-    };
+    return { chartData, maxDailyValue, depositPct };
   }, [transaction, totalDeposits, totalTransfers]);
 
   const radius = 40;
@@ -70,7 +87,6 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.summaryTitle}>Análise Financeira</Text>
 
-      {/* Cards de Resumo */}
       <View style={styles.summaryGrid}>
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Saldo Atual</Text>
@@ -98,7 +114,6 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
       </View>
 
       <View style={styles.chartsGrid}>
-        {/* Gráfico de Barras */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Fluxo Diário</Text>
           <ScrollView
@@ -109,84 +124,118 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
             {chartAnalysis.chartData.length === 0 ? (
               <Text style={styles.noData}>Sem dados</Text>
             ) : (
-              chartAnalysis.chartData.map((data) => (
-                <View key={data.date} style={styles.barGroup}>
-                  <View style={styles.barsWrapper}>
-                    <View
-                      style={[
-                        styles.bar,
-                        styles.barDeposit,
-                        {
-                          height: `${(data.deposito / chartAnalysis.maxDailyValue) * 100}%`,
-                        },
-                      ]}
-                    />
-                    <View
-                      style={[
-                        styles.bar,
-                        styles.barTransfer,
-                        {
-                          height: `${(data.transferencia / chartAnalysis.maxDailyValue) * 100}%`,
-                        },
-                      ]}
-                    />
+              chartAnalysis.chartData.map((data) => {
+                const depHeight =
+                  (data.deposito / chartAnalysis.maxDailyValue) * 100;
+                const transHeight =
+                  (data.transferencia / chartAnalysis.maxDailyValue) * 100;
+                return (
+                  <View key={data.date} style={styles.barGroup}>
+                    <View style={styles.barsWrapper}>
+                      <Animated.View
+                        style={[
+                          styles.bar,
+                          styles.barDeposit,
+                          {
+                            height: animValue.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: ["0%", `${depHeight}%`],
+                            }),
+                          },
+                        ]}
+                      />
+                      <Animated.View
+                        style={[
+                          styles.bar,
+                          styles.barTransfer,
+                          {
+                            height: animValue.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: ["0%", `${transHeight}%`],
+                            }),
+                          },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.barDate}>
+                      {formatDateMini(data.date)}
+                    </Text>
                   </View>
-                  <Text style={styles.barDate}>
-                    {formatDateMini(data.date)}
-                  </Text>
-                </View>
-              ))
+                );
+              })
             )}
           </ScrollView>
         </View>
 
-        {/* Gráfico de Distribuição (Donut) */}
-        <View style={styles.chartCard}>
+        <View style={[styles.chartCard, { minHeight: 250 }]}>
           <Text style={styles.chartTitle}>Distribuição</Text>
           <View style={styles.donutContainer}>
-            <View style={styles.svgWrapper}>
-              <Svg width="120" height="120" viewBox="0 0 120 120">
-                <G rotation="-90" origin="60, 60">
-                  <Circle
-                    cx="60"
-                    cy="60"
-                    r={radius}
-                    stroke="#ef4444"
-                    strokeWidth={strokeWidth}
-                    fill="transparent"
-                  />
-                  <Circle
-                    cx="60"
-                    cy="60"
-                    r={radius}
-                    stroke="#10b981"
-                    strokeWidth={strokeWidth}
-                    fill="transparent"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={circumference - depositDash}
-                    strokeLinecap="butt"
-                  />
-                </G>
-              </Svg>
-              <View style={styles.donutHoleText}>
-                <Text style={styles.donutLabel}>Entradas</Text>
-                <Text style={styles.donutValue}>
-                  {Math.round(chartAnalysis.depositPct)}%
+            {showDonut ? (
+              <>
+                <View style={styles.svgWrapper}>
+                  <Svg width="120" height="120" viewBox="0 0 120 120">
+                    <G rotation="-90" origin="60, 60">
+                      <Circle
+                        cx="60"
+                        cy="60"
+                        r={radius}
+                        stroke="#ef4444"
+                        strokeWidth={strokeWidth}
+                        fill="transparent"
+                      />
+                      <Circle
+                        cx="60"
+                        cy="60"
+                        r={radius}
+                        stroke="#10b981"
+                        strokeWidth={strokeWidth}
+                        fill="transparent"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={circumference - depositDash}
+                      />
+                    </G>
+                  </Svg>
+                  <View style={styles.donutHoleText}>
+                    <Text style={styles.donutLabel}>Entradas</Text>
+                    <Text style={styles.donutValue}>
+                      {Math.round(chartAnalysis.depositPct)}%
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.legend}>
+                  <View style={styles.legendItem}>
+                    <View
+                      style={[styles.dot, { backgroundColor: "#10b981" }]}
+                    />
+                    <Text style={styles.legendText}>Entradas</Text>
+                  </View>
+                  <View style={styles.legendItem}>
+                    <View
+                      style={[styles.dot, { backgroundColor: "#ef4444" }]}
+                    />
+                    <Text style={styles.legendText}>Saídas</Text>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <View style={styles.placeholderContainer}>
+                <Text style={styles.placeholderText}>
+                  Informações de distribuição ocultas
                 </Text>
               </View>
-            </View>
+            )}
 
-            {/* Legenda */}
-            <View style={styles.legend}>
-              <View style={styles.legendItem}>
-                <View style={[styles.dot, { backgroundColor: "#10b981" }]} />
-                <Text style={styles.legendText}>Entradas</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.dot, { backgroundColor: "#ef4444" }]} />
-                <Text style={styles.legendText}>Saídas</Text>
-              </View>
-            </View>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                showDonut ? styles.btnActive : styles.btnInactive,
+              ]}
+              onPress={() => setShowDonut(!showDonut)}
+            >
+              <Text style={styles.toggleButtonText}>
+                {showDonut ? "Ocultar informações" : "Exibir informações"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -268,7 +317,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -20,
   },
-  donutContainer: { alignItems: "center" },
+  donutContainer: { alignItems: "center", justifyContent: "center", flex: 1 },
   svgWrapper: {
     position: "relative",
     justifyContent: "center",
@@ -279,10 +328,26 @@ const styles = StyleSheet.create({
   donutHoleText: { position: "absolute", alignItems: "center" },
   donutLabel: { fontSize: 10, color: "#6b7280" },
   donutValue: { fontSize: 16, fontWeight: "bold", color: "#111827" },
-  legend: { flexDirection: "row", marginTop: 16, gap: 16 },
+  legend: { flexDirection: "row", marginTop: 16, gap: 16, marginBottom: 16 },
   legendItem: { flexDirection: "row", alignItems: "center", gap: 4 },
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 6 },
   legendText: { fontSize: 12, color: "#374151" },
+  placeholderContainer: {
+    height: 150,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: { color: "#9ca3af", fontSize: 12, fontStyle: "italic" },
+  toggleButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    elevation: 1,
+  },
+  btnInactive: { backgroundColor: "#10b981" },
+  btnActive: { backgroundColor: "#6b7280" },
+  toggleButtonText: { color: "#ffffff", fontSize: 14, fontWeight: "600" },
 });
 
 export default FinancialDashboard;
