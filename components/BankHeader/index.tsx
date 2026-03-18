@@ -1,4 +1,6 @@
+import { logout } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type BankHeaderProps = {
@@ -15,6 +17,16 @@ export default function BankHeader({
     onToggleBalance,
 
 }: BankHeaderProps) {
+
+    const router = useRouter();
+
+    async function handleLogout() {
+        try {
+            await logout();
+        } catch (error) {
+            console.log("Erro ao sair:", error);
+        }
+    }
 
 
     return (
@@ -45,6 +57,10 @@ export default function BankHeader({
 
                     <TouchableOpacity style={styles.iconButton}>
                         <Ionicons name="notifications-outline" size={20} color="#ff5031" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.iconButton} onPress={handleLogout}>
+                        <Ionicons name="log-out-outline" size={20} color="#ff5031" />
                     </TouchableOpacity>
                 </View>
             </View>
