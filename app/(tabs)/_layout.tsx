@@ -1,3 +1,4 @@
+import { useBalance } from "@/hooks/useBalance";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useState } from "react";
@@ -5,6 +6,7 @@ import BankHeader from "../../components/BankHeader";
 
 export default function TabsLayout() {
     const [showBalance, setShowBalance] = useState(true);
+    const { balance } = useBalance();
 
     const toggleBalance = () => {
         setShowBalance((prev) => !prev);
@@ -15,8 +17,7 @@ export default function TabsLayout() {
                 headerShown: true,
                 header: () => (
                     <BankHeader
-                        userName="Marciano"
-                        balance="R$ 12.450,90"
+                        balance={balance}
                         showBalance={showBalance}
                         onToggleBalance={toggleBalance}
                     />
