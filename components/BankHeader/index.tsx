@@ -1,31 +1,60 @@
+import { useAuth } from "@/hooks/useAuth";
 import { logout } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type BankHeaderProps = {
-    userName?: string;
-    balance?: string;
+    balance: number;
     showBalance: boolean;
     onToggleBalance: () => void;
 };
 
+function formatBRL(value: number) {
+    return value.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    });
+}
+
+
 export default function BankHeader({
-    userName = "Marciano",
-    balance = "R$ 12.450,90",
+    balance,
     showBalance,
     onToggleBalance,
 
 }: BankHeaderProps) {
 
+    const { user } = useAuth();
+
+    const userName = user?.displayName || "Usuário";
+
+    const initials =
+        user?.displayName
+            ?.split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase() || "U";
+
     const router = useRouter();
 
     async function handleLogout() {
+
         try {
             await logout();
         } catch (error) {
             console.log("Erro ao sair:", error);
         }
+
+        /* Alert.alert("Sair", "Deseja realmente sair?", [
+            { text: "Cancelar", style: "cancel" },
+            {
+                text: "Sair",
+                onPress: async () => {
+                    await logout();
+                },
+            },
+        ]); */
     }
 
 
@@ -33,6 +62,7 @@ export default function BankHeader({
         <View style={styles.wrapper}>
             <View style={styles.topBar}>
                 <View style={styles.leftContent}>
+
                     <View style={styles.logoCircle}>
                         <Ionicons name="person-circle-outline" size={36} color="#ff5031" />
                     </View>
@@ -55,9 +85,9 @@ export default function BankHeader({
                         />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.iconButton}>
+                    {/*                     <TouchableOpacity style={styles.iconButton}>
                         <Ionicons name="notifications-outline" size={20} color="#ff5031" />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity style={styles.iconButton} onPress={handleLogout}>
                         <Ionicons name="log-out-outline" size={20} color="#ff5031" />
@@ -68,7 +98,7 @@ export default function BankHeader({
             <View style={styles.balanceCard}>
                 <Text style={styles.balanceLabel}>Saldo em conta</Text>
                 <Text style={showBalance ? styles.balanceValue : styles.HideBalanceValue}>
-                    {showBalance ? balance : "••••••"}
+                    {showBalance ? formatBRL(balance) : "••••••"}
                 </Text>
             </View>
         </View>
