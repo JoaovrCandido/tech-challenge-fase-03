@@ -1,9 +1,7 @@
+import FinancialDashboard from "@/components/FinancialDashboard";
+import { mockTransactions } from "@/mocks/transactions";
 import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import FinancialDashboard from "@/components/FinancialDashboard";
-
-import { mockTransactions } from "@/mocks/transactions";
 
 export default function HomeScreen() {
   return (

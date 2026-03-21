@@ -9,24 +9,23 @@ import {
 } from "react-native";
 import Svg, { Circle, G } from "react-native-svg";
 
-import { Transaction } from "@/types";
+/*import { Transaction } from "@/types"; */
+import { useTransactions } from "@/hooks/useTransactions";
+import { calculateBalance } from "@/services/transactions";
 import {
-  calculateBalance,
   calculateTotalDeposits,
   calculateTotalTransfers,
 } from "@/utils/financeUtils";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDateMini } from "@/utils/formatters";
 
-interface FinancialDashboardProps {
+/* interface FinancialDashboardProps {
   transaction: Transaction[];
 }
-
-export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
-  transaction,
-}) => {
+ */
+export const FinancialDashboard: React.FC = () => {
+  const { transactions, loading } = useTransactions();
   const [showDonut, setShowDonut] = useState(false);
-
   const animValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -40,11 +39,11 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
         useNativeDriver: false,
       }),
     ]).start();
-  }, [transaction]);
+  }, [transactions, animValue]);
 
-  const currentBalance = calculateBalance(transaction);
-  const totalDeposits = calculateTotalDeposits(transaction);
-  const totalTransfers = calculateTotalTransfers(transaction);
+  const currentBalance = calculateBalance(transactions);
+  const totalDeposits = calculateTotalDeposits(transactions);
+  const totalTransfers = calculateTotalTransfers(transactions);
 
   const chartAnalysis = useMemo(() => {
     const dailyData: Record<
@@ -52,14 +51,17 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
       { date: string; deposito: number; transferencia: number }
     > = {};
 
-    transaction.forEach((t) => {
+    transactions.forEach((t) => {
       if (t.type === "") return;
-      if (!dailyData[t.date]) {
-        dailyData[t.date] = { date: t.date, deposito: 0, transferencia: 0 };
+
+      const dateKey = t.createdAt.toISOString().slice(0, 10);
+
+      if (!dailyData[dateKey]) {
+        dailyData[dateKey] = { date: dateKey, deposito: 0, transferencia: 0 };
       }
-      if (t.type === "deposito") dailyData[t.date].deposito += t.value;
+      if (t.type === "deposito") dailyData[dateKey].deposito += t.value;
       else if (t.type === "transferencia")
-        dailyData[t.date].transferencia += t.value;
+        dailyData[dateKey].transferencia += t.value;
     });
 
     const chartData = Object.values(dailyData).sort(
@@ -76,12 +78,22 @@ export const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
       totalVolume > 0 ? (totalDeposits / totalVolume) * 100 : 0;
 
     return { chartData, maxDailyValue, depositPct };
-  }, [transaction, totalDeposits, totalTransfers]);
+  }, [transactions, totalDeposits, totalTransfers]);
 
   const radius = 40;
   const strokeWidth = 20;
   const circumference = 2 * Math.PI * radius;
   const depositDash = (chartAnalysis.depositPct / 100) * circumference;
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.summaryTitle}>Carregando análise...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

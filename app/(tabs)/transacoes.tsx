@@ -1,12 +1,15 @@
 import TransactionsList from "@/components/TransactionList";
-import { mockTransactions } from "@/mocks/transactions";
+//import { mockTransactions } from "@/mocks/transactions";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Pressable,
   StyleSheet,
   Text,
   TextInput,
-  View
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,13 +19,18 @@ export default function TransacoesScreen() {
   const [category, setCategory] = useState<CategoryFilter>("todas");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const router = useRouter();
+
+  const { transactions, loading } = useTransactions();
 
   const filteredTransactions = useMemo(() => {
-    return mockTransactions.filter((transaction) => {
+    //return mockTransactions.filter((transaction) => {
+    return transactions.filter((transaction) => {
       const matchesCategory =
         category === "todas" || transaction.type === category;
 
-      const transactionDate = new Date(`${transaction.date}T00:00:00`);
+      //const transactionDate = new Date(`${transaction.date}T00:00:00`);
+      const transactionDate = new Date(transaction.createdAt);
       const start = startDate ? new Date(`${startDate}T00:00:00`) : null;
       const end = endDate ? new Date(`${endDate}T23:59:59`) : null;
 
@@ -31,12 +39,29 @@ export default function TransacoesScreen() {
 
       return matchesCategory && matchesStart && matchesEnd;
     });
-  }, [category, startDate, endDate]);
+  }, [transactions, category, startDate, endDate]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <Text>Carregando transações...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
       <View style={styles.content}>
         <Text style={styles.title}>Transações</Text>
+
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => router.push("/new-transaction")}
+        >
+          <Text style={styles.primaryButtonText}>+ Nova transação</Text>
+        </TouchableOpacity>
 
         <View style={styles.filtersCard}>
           <Text style={styles.filterTitle}>Categoria</Text>
@@ -202,5 +227,17 @@ const styles = StyleSheet.create({
   clearButtonText: {
     color: "#1F3C88",
     fontWeight: "700",
+  },
+  primaryButton: {
+    backgroundColor: "#1F3C88",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
   },
 });

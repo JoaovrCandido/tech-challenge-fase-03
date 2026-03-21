@@ -21,8 +21,8 @@ const ITEMS_PER_LOAD = 5;
 const TransactionsList = ({
   transactions,
   title,
-  //   onEditClick,
-  //   onDeleteClick,
+  onEditClick,
+  onDeleteClick,
 }: TransactionsListProps) => {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_LOAD);
 
@@ -52,36 +52,42 @@ const TransactionsList = ({
     item: transaction,
   }: ListRenderItemInfo<Transaction>) => {
     const descriptionLabel = transaction.description || "sem descrição";
+    const transactionDate = transaction.createdAt;
 
     return (
       <View style={styles.transactionItem}>
         <View style={styles.transactionHeader}>
           <Text style={styles.transactionMonth}>
-            {getMonthName(transaction.date)}
+            {/* {getMonthName(transaction.date)} */}
+            {getMonthName(transactionDate)}
           </Text>
 
           <View style={styles.transactionActions}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              //   onPress={() => onEditClick(transaction)}
-              accessibilityLabel={`Editar transação: ${descriptionLabel}`}
-            >
-              <Image
-                style={styles.icon}
-                source={require("@/assets/edit.png")}
-              />
-            </TouchableOpacity>
+            {!!onEditClick && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => onEditClick(transaction)}
+                accessibilityLabel={`Editar transação: ${descriptionLabel}`}
+              >
+                <Image
+                  style={styles.icon}
+                  source={require("@/assets/edit.png")}
+                />
+              </TouchableOpacity>
+            )}
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              //   onPress={() => onDeleteClick(transaction)}
-              accessibilityLabel={`Excluir transação: ${descriptionLabel}`}
-            >
-              <Image
-                style={styles.icon}
-                source={require("@/assets/delete-icon.png")}
-              />
-            </TouchableOpacity>
+            {!!onDeleteClick && (
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => onDeleteClick(transaction)}
+                accessibilityLabel={`Excluir transação: ${descriptionLabel}`}
+              >
+                <Image
+                  style={styles.icon}
+                  source={require("@/assets/delete-icon.png")}
+                />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -90,7 +96,8 @@ const TransactionsList = ({
             {AdjustTypesNames(transaction.type)}
           </Text>
           <Text style={styles.transactionDate}>
-            {formatDate(transaction.date)}
+            {/* {formatDate(transaction.date)} */}
+            {formatDate(transactionDate)}
           </Text>
         </View>
 

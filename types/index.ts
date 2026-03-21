@@ -1,12 +1,15 @@
 export type TransactionType = "deposito" | "transferencia" | "";
 
 export interface Transaction {
-  id: number;
+  //id: number;
+  id: string;
   type: TransactionType;
   value: number;
-  date: string; // Formato "AAAA-MM-DD"
+  //date: string; // Formato "AAAA-MM-DD"
+  createdAt: Date;
   description: string;
   attachment?: string;
+  userId?: string;
 }
 
 export interface TransactionInput {
@@ -70,8 +73,8 @@ export interface AccessibilityContextType {
 export interface TransactionsListProps {
   transactions: Transaction[];
   title: string;
-  // onEditClick: (transaction: Transaction) => void;
-  // onDeleteClick: (transation: Transaction) => void;
+  onEditClick?: (transaction: Transaction) => void;
+  onDeleteClick?: (transation: Transaction) => void;
 }
 
 export interface TransactionsListHomeProps {
