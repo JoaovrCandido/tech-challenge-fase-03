@@ -259,16 +259,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9fafb" },
   content: { padding: 16 },
   summaryTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#111",
     marginBottom: 16,
-    color: "#111827",
   },
   summaryGrid: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 24,
+    flexWrap: "wrap",
     gap: 8,
+    marginBottom: 24,
   },
   card: {
     flex: 1,

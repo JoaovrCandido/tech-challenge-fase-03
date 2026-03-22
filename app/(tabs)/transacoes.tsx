@@ -1,9 +1,12 @@
 import TransactionsList from "@/components/TransactionList";
 //import { mockTransactions } from "@/mocks/transactions";
 import { useTransactions } from "@/hooks/useTransactions";
+import { removeTransaction } from "@/services/transactions";
+import { Transaction } from "@/types";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
+  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -22,6 +25,31 @@ export default function TransacoesScreen() {
   const router = useRouter();
 
   const { transactions, loading } = useTransactions();
+
+  function handleEdit(transaction: Transaction) {
+    router.push({
+      pathname: "/edit-transaction",
+      params: {
+        id: String(transaction.id),
+        type: transaction.type,
+        value: String(transaction.value),
+        description: transaction.description,
+      },
+    });
+  }
+
+  async function handleDelete(transaction: Transaction) {
+    Alert.alert("Excluir", "Deseja excluir esta transação?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Excluir",
+        style: "destructive",
+        onPress: async () => {
+          await removeTransaction(transaction.id);
+        },
+      },
+    ]);
+  }
 
   const filteredTransactions = useMemo(() => {
     //return mockTransactions.filter((transaction) => {
@@ -127,6 +155,8 @@ export default function TransacoesScreen() {
         <TransactionsList
           transactions={filteredTransactions}
           title="Lista de Transações"
+          onEditClick={handleEdit}
+          onDeleteClick={handleDelete}
         />
       </View>
     </SafeAreaView>
