@@ -1,9 +1,11 @@
-import { updateTransaction } from "@/services/transactions";
+import { getTransactionById, updateTransaction } from "@/services/transactions";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Alert,
     Button,
+    Linking,
+    Platform,
     StyleSheet,
     Text,
     TextInput,
@@ -13,18 +15,36 @@ import {
 
 export default function EditTransactionScreen() {
     const router = useRouter();
-    const params = useLocalSearchParams<{
-        id: string;
-        type: "deposito" | "transferencia";
-        value: string;
-        description: string;
-    }>();
+    const params = useLocalSearchParams<{ id: string }>();
 
-    const [type, setType] = useState<"deposito" | "transferencia">(
-        params.type ?? "deposito"
-    );
-    const [value, setValue] = useState(params.value ?? "");
-    const [description, setDescription] = useState(params.description ?? "");
+    const [loading, setLoading] = useState(true);
+    const [type, setType] = useState<"deposito" | "transferencia">("deposito");
+    const [value, setValue] = useState("");
+    const [description, setDescription] = useState("");
+    const [receiptUrl, setReceiptUrl] = useState("");
+    const [receiptName, setReceiptName] = useState("");
+
+    useEffect(() => {
+        async function loadTransaction() {
+            if (!params.id) return;
+
+            try {
+                const transaction = await getTransactionById(String(params.id));
+
+                setType(transaction.type);
+                setValue(String(transaction.value));
+                setDescription(transaction.description);
+                setReceiptUrl(transaction.receipt?.downloadURL ?? "");
+                setReceiptName(transaction.receipt?.fileName ?? "");
+            } catch (error: any) {
+                Alert.alert("Erro", error.message ?? "Não foi possível carregar.");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadTransaction();
+    }, [params.id]);
 
     async function handleSave() {
         if (!params.id || !value || !description) {
@@ -33,7 +53,7 @@ export default function EditTransactionScreen() {
         }
 
         try {
-            await updateTransaction(params.id, {
+            await updateTransaction(String(params.id), {
                 type,
                 value: Number(value),
                 description,
@@ -44,6 +64,29 @@ export default function EditTransactionScreen() {
         } catch (error: any) {
             Alert.alert("Erro", error.message ?? "Não foi possível atualizar.");
         }
+    }
+
+    async function handleOpenReceipt() {
+        if (!receiptUrl) return;
+
+        try {
+            if (Platform.OS === "web") {
+                window.open(receiptUrl, "_blank");
+                return;
+            }
+
+            await Linking.openURL(receiptUrl);
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possível abrir o recibo.");
+        }
+    }
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Carregando transação...</Text>
+            </View>
+        );
     }
 
     return (
@@ -81,9 +124,29 @@ export default function EditTransactionScreen() {
                 style={styles.input}
             />
 
+            {!!receiptUrl && (
+                <View style={styles.receiptCard}>
+                    <Text style={styles.receiptLabel}>Recibo anexado</Text>
+
+                    {!!receiptName && (
+                        <Text style={styles.receiptName}>{receiptName}</Text>
+                    )}
+
+                    <TouchableOpacity
+                        style={styles.receiptButton}
+                        onPress={handleOpenReceipt}
+                    >
+                        <Text style={styles.receiptButtonText}>Ver recibo</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
             <Button title="Salvar alterações" onPress={handleSave} />
 
-            <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
+            <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => router.back()}
+            >
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
             </TouchableOpacity>
         </View>
@@ -91,9 +154,21 @@ export default function EditTransactionScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-    title: { fontSize: 22, fontWeight: "700", marginBottom: 20 },
-    row: { flexDirection: "row", marginBottom: 16, gap: 10 },
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: "#fff",
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "700",
+        marginBottom: 20,
+    },
+    row: {
+        flexDirection: "row",
+        marginBottom: 16,
+        gap: 10,
+    },
     typeButton: {
         flex: 1,
         padding: 12,
@@ -101,13 +176,50 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: "center",
     },
-    active: { backgroundColor: "#DCE6FF" },
+    active: {
+        backgroundColor: "#DCE6FF",
+    },
     input: {
         borderWidth: 1,
         padding: 12,
         marginBottom: 12,
         borderRadius: 8,
     },
-    cancelButton: { marginTop: 12, alignItems: "center" },
-    cancelButtonText: { color: "#666", fontSize: 14 },
+    receiptCard: {
+        backgroundColor: "#F7F9FC",
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 16,
+    },
+    receiptLabel: {
+        fontSize: 13,
+        color: "#666",
+        marginBottom: 6,
+    },
+    receiptName: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#111",
+        marginBottom: 10,
+    },
+    receiptButton: {
+        alignSelf: "flex-start",
+        backgroundColor: "#EEF3FF",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+    },
+    receiptButtonText: {
+        color: "#1F3C88",
+        fontWeight: "700",
+        fontSize: 13,
+    },
+    cancelButton: {
+        marginTop: 12,
+        alignItems: "center",
+    },
+    cancelButtonText: {
+        color: "#666",
+        fontSize: 14,
+    },
 });
