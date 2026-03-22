@@ -1,4 +1,6 @@
-import { addTransaction } from "@/services/transactions";
+import { uploadReceipt } from "@/services/receipts";
+import { addTransaction, attachReceiptToTransaction } from "@/services/transactions";
+import * as DocumentPicker from "expo-document-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -15,6 +17,9 @@ export default function NewTransactionScreen() {
     const [type, setType] = useState<"deposito" | "transferencia">("deposito");
     const [value, setValue] = useState("");
     const [description, setDescription] = useState("");
+    const [selectedFile, setSelectedFile] = useState<Blob | null>(null);
+    const [selectedFileName, setSelectedFileName] = useState("");
+    const [selectedFileType, setSelectedFileType] = useState("");
 
     const router = useRouter();
 
@@ -25,17 +30,56 @@ export default function NewTransactionScreen() {
         }
 
         try {
-            await addTransaction({
+            // cria transação
+            const transactionId = await addTransaction({
                 type,
                 value: Number(value),
                 description,
             });
 
+            // se tiver recibo
+            if (selectedFile) {
+                const receiptData = await uploadReceipt({
+                    transactionId,
+                    file: selectedFile,
+                    fileName: selectedFileName,
+                    contentType: selectedFileType,
+                });
+
+                // salva no Firestore dentro da transação
+                await attachReceiptToTransaction(transactionId, receiptData);
+            }
             Alert.alert("Sucesso", "Transação criada!");
 
-            router.back(); // volta para tela anterior
+            router.back();
         } catch (error: any) {
             Alert.alert("Erro", error.message);
+        }
+    }
+
+    async function handlePickFile() {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ["image/*", "application/pdf"],
+                copyToCacheDirectory: true,
+                multiple: false,
+            });
+
+            if (result.canceled) {
+                return;
+            }
+
+            const asset = result.assets[0];
+
+            setSelectedFileName(asset.name ?? "recibo");
+            setSelectedFileType(asset.mimeType ?? "application/octet-stream");
+
+            const response = await fetch(asset.uri);
+            const blob = await response.blob();
+
+            setSelectedFile(blob);
+        } catch (error: any) {
+            Alert.alert("Erro", "Não foi possível selecionar o arquivo.");
         }
     }
 
@@ -82,6 +126,14 @@ export default function NewTransactionScreen() {
                 onChangeText={setDescription}
                 style={styles.input}
             />
+
+            <TouchableOpacity style={styles.fileButton} onPress={handlePickFile}>
+                <Text style={styles.fileButtonText}>Anexar recibo</Text>
+            </TouchableOpacity>
+
+            {!!selectedFileName && (
+                <Text style={styles.fileName}>Arquivo: {selectedFileName}</Text>
+            )}
 
             <Button title="Concluir transação" onPress={handleSave} />
             <TouchableOpacity
@@ -140,5 +192,23 @@ const styles = StyleSheet.create({
     cancelButtonText: {
         color: "#666",
         fontSize: 14,
+    },
+    fileButton: {
+        backgroundColor: "#EEF3FF",
+        padding: 12,
+        borderRadius: 10,
+        alignItems: "center",
+        marginBottom: 12,
+    },
+
+    fileButtonText: {
+        color: "#1F3C88",
+        fontWeight: "700",
+    },
+
+    fileName: {
+        fontSize: 13,
+        color: "#555",
+        marginBottom: 12,
     },
 });

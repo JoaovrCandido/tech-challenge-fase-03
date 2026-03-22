@@ -90,3 +90,21 @@ export interface MenuItem {
   label: string;
   path: string;
 }
+
+export interface TransactionReceipt {
+  fileName: string;
+  storagePath: string;
+  downloadURL: string;
+  contentType: string;
+}
+
+export interface Transaction {
+  id: string;
+  userId?: string;
+  type: TransactionType;
+  value: number;
+  createdAt: Date;
+  description: string;
+  attachment?: string;
+  receipt?: TransactionReceipt;
+}

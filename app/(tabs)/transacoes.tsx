@@ -31,9 +31,6 @@ export default function TransacoesScreen() {
       pathname: "/edit-transaction",
       params: {
         id: String(transaction.id),
-        type: transaction.type,
-        value: String(transaction.value),
-        description: transaction.description,
       },
     });
   }

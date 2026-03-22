@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
+  Linking,
   ListRenderItemInfo,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 import { TransactionsListProps } from "@/types";
@@ -114,6 +115,14 @@ const TransactionsList = ({
             {transaction.type === "deposito" ? "+" : "-"} {formatCurrency(transaction.value)}
           </Text>
         </View>
+        {!!transaction.receipt?.downloadURL && (
+          <TouchableOpacity
+            style={styles.receiptButton}
+            onPress={() => handleOpenReceipt(transaction.receipt?.downloadURL)}
+          >
+            <Text style={styles.receiptButtonText}>Ver recibo</Text>
+          </TouchableOpacity>
+        )}
 
       </View>
     );
@@ -123,6 +132,16 @@ const TransactionsList = ({
     if (visibleCount >= transactions.length) return null;
     return <Text style={styles.loading}>Carregando mais...</Text>;
   };
+
+  async function handleOpenReceipt(url?: string) {
+    if (!url) return;
+
+    const canOpen = await Linking.canOpenURL(url);
+
+    if (canOpen) {
+      await Linking.openURL(url);
+    }
+  }
 
   return (
     <View style={styles.container} accessibilityLiveRegion="polite">
@@ -234,7 +253,20 @@ const styles = StyleSheet.create({
   },
   negativeValue: {
     color: "#C62828",
-  }
+  },
+  receiptButton: {
+    marginTop: 10,
+    alignSelf: "flex-start",
+    backgroundColor: "#EEF3FF",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  receiptButtonText: {
+    color: "#1F3C88",
+    fontWeight: "700",
+    fontSize: 13,
+  },
 });
 
 export default TransactionsList;
