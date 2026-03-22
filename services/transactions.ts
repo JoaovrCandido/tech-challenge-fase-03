@@ -7,6 +7,7 @@ import {
     onSnapshot,
     query,
     Timestamp,
+    updateDoc,
     where
 } from "firebase/firestore";
 
@@ -20,6 +21,12 @@ export type FirestoreTransaction = {
 };
 
 type CreateTransactionInput = {
+    type: "deposito" | "transferencia";
+    value: number;
+    description: string;
+};
+
+type UpdateTransactionInput = {
     type: "deposito" | "transferencia";
     value: number;
     description: string;
@@ -90,6 +97,25 @@ export function subscribeToUserTransactions(
 
 export async function removeTransaction(transactionId: string) {
     await deleteDoc(doc(db, "transactions", transactionId));
+}
+
+export async function updateTransaction(
+    transactionId: string,
+    input: UpdateTransactionInput
+) {
+    const user = auth.currentUser;
+
+    if (!user) {
+        throw new Error("Usuário não autenticado.");
+    }
+
+    const ref = doc(db, "transactions", transactionId);
+
+    await updateDoc(ref, {
+        type: input.type,
+        value: input.value,
+        description: input.description,
+    });
 }
 
 export function calculateBalance(transactions: FirestoreTransaction[]) {

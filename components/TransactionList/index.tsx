@@ -187,7 +187,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   actionButton: {
-    padding: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#0c6779",
+    justifyContent: "center",
+    alignItems: "center",
   },
   icon: {
     width: 16,

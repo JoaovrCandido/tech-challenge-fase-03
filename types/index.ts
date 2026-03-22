@@ -1,15 +1,13 @@
 export type TransactionType = "deposito" | "transferencia" | "";
 
 export interface Transaction {
-  //id: number;
   id: string;
+  userId?: string;
   type: TransactionType;
   value: number;
-  //date: string; // Formato "AAAA-MM-DD"
   createdAt: Date;
   description: string;
   attachment?: string;
-  userId?: string;
 }
 
 export interface TransactionInput {

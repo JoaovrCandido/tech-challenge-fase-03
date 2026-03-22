@@ -259,10 +259,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9fafb" },
   content: { padding: 16 },
   summaryTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-
-    color: "#111827",
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#111",
+    marginBottom: 16,
   },
   summaryGrid: {
     flexDirection: "row",
