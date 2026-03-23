@@ -76,14 +76,48 @@ export const FinancialDashboard: React.FC = () => {
     const totalVolume = totalDeposits + totalTransfers;
     const depositPct =
       totalVolume > 0 ? (totalDeposits / totalVolume) * 100 : 0;
+    const transferPct =
+      totalVolume > 0 ? (totalTransfers / totalVolume) * 100 : 0;
 
-    return { chartData, maxDailyValue, depositPct };
+    const MIN_DISPLAY_PCT = 2;
+    let displayDepositPct = depositPct;
+    let displayTransferPct = transferPct;
+
+    if (depositPct > 0 && depositPct < MIN_DISPLAY_PCT) {
+      displayDepositPct = MIN_DISPLAY_PCT;
+    }
+
+    if (transferPct > 0 && transferPct < MIN_DISPLAY_PCT) {
+      displayTransferPct = MIN_DISPLAY_PCT;
+    }
+
+    if (displayDepositPct + displayTransferPct > 100) {
+      const scale = 100 / (displayDepositPct + displayTransferPct);
+      displayDepositPct *= scale;
+      displayTransferPct *= scale;
+    }
+
+    return {
+      chartData,
+      maxDailyValue,
+      depositPct,
+      transferPct,
+      displayDepositPct,
+      displayTransferPct,
+    };
   }, [transactions, totalDeposits, totalTransfers]);
+
+  console.log("teste: ", chartAnalysis);
 
   const radius = 40;
   const strokeWidth = 20;
   const circumference = 2 * Math.PI * radius;
-  const depositDash = (chartAnalysis.depositPct / 100) * circumference;
+  const depositDash =
+    ((chartAnalysis.displayDepositPct ?? chartAnalysis.depositPct) / 100) *
+    circumference;
+  const transferDash =
+    ((chartAnalysis.displayTransferPct ?? chartAnalysis.transferPct) / 100) *
+    circumference;
 
   if (loading) {
     return (
@@ -139,8 +173,13 @@ export const FinancialDashboard: React.FC = () => {
               chartAnalysis.chartData.map((data) => {
                 const depHeight =
                   (data.deposito / chartAnalysis.maxDailyValue) * 100;
-                const transHeight =
+                const rawTransHeight =
                   (data.transferencia / chartAnalysis.maxDailyValue) * 100;
+                const transHeight =
+                  data.transferencia > 0
+                    ? Math.max(rawTransHeight, 1) // garante visibilidade mínima
+                    : 0;
+
                 return (
                   <View key={data.date} style={styles.barGroup}>
                     <View style={styles.barsWrapper}>
@@ -170,7 +209,7 @@ export const FinancialDashboard: React.FC = () => {
                       />
                     </View>
                     <Text style={styles.barDate}>
-                      {formatDateMini(data.date)}
+                      {formatDateMini(new Date(data.date))}
                     </Text>
                   </View>
                 );
@@ -191,7 +230,7 @@ export const FinancialDashboard: React.FC = () => {
                         cx="60"
                         cy="60"
                         r={radius}
-                        stroke="#ef4444"
+                        stroke="#e5e7eb"
                         strokeWidth={strokeWidth}
                         fill="transparent"
                       />
@@ -202,7 +241,17 @@ export const FinancialDashboard: React.FC = () => {
                         stroke="#10b981"
                         strokeWidth={strokeWidth}
                         fill="transparent"
-                        strokeDasharray={circumference}
+                        strokeDasharray={`${depositDash} ${circumference - depositDash}`}
+                        strokeDashoffset={0}
+                      />
+                      <Circle
+                        cx="60"
+                        cy="60"
+                        r={radius}
+                        stroke="#ef4444"
+                        strokeWidth={strokeWidth}
+                        fill="transparent"
+                        strokeDasharray={`${transferDash} ${circumference - transferDash}`}
                         strokeDashoffset={circumference - depositDash}
                       />
                     </G>
@@ -210,7 +259,7 @@ export const FinancialDashboard: React.FC = () => {
                   <View style={styles.donutHoleText}>
                     <Text style={styles.donutLabel}>Entradas</Text>
                     <Text style={styles.donutValue}>
-                      {Math.round(chartAnalysis.depositPct)}%
+                      {Math.round(chartAnalysis.displayDepositPct)}%
                     </Text>
                   </View>
                 </View>
