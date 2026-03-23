@@ -1,3 +1,4 @@
+import { useBalance } from "@/hooks/useBalance";
 import { uploadReceipt } from "@/services/receipts";
 import {
     addTransaction,
@@ -25,6 +26,7 @@ export default function NewTransactionScreen() {
   const [selectedFileType, setSelectedFileType] = useState("");
 
   const router = useRouter();
+  const { balance } = useBalance();
 
   function handleValueChange(text: string) {
     // Remove "R$ " e espaços, mantendo apenas dígitos, vírgula e ponto
@@ -43,7 +45,10 @@ export default function NewTransactionScreen() {
       Alert.alert("Erro", "Insira um valor válido");
       return;
     }
-
+    if (type === "transferencia" && numericValue > balance) {
+      Alert.alert("Erro", "Saldo insuficiente para transferência");
+      return;
+    }
     try {
       // cria transação
       const transactionId = await addTransaction({

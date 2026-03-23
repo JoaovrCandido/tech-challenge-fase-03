@@ -1,22 +1,22 @@
 import { auth, db } from "@/services/firebase";
 import {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    getDoc,
-    onSnapshot,
-    query,
-    serverTimestamp,
-    Timestamp,
-    updateDoc,
-    where,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  Timestamp,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 
 export type FirestoreTransaction = {
   id: string;
   userId: string;
-  type: "deposito" | "transferencia" | "";
+  type: "deposito" | "transferencia";
   value: number;
   description: string;
   createdAt: Date;

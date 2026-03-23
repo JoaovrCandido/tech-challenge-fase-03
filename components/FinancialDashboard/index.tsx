@@ -52,8 +52,6 @@ export const FinancialDashboard: React.FC = () => {
     > = {};
 
     transactions.forEach((t) => {
-      if (t.type === "") return;
-
       const dateKey = t.createdAt.toISOString().slice(0, 10);
 
       if (!dailyData[dateKey]) {
@@ -106,8 +104,6 @@ export const FinancialDashboard: React.FC = () => {
       displayTransferPct,
     };
   }, [transactions, totalDeposits, totalTransfers]);
-
-  console.log("teste: ", chartAnalysis);
 
   const radius = 40;
   const strokeWidth = 20;
