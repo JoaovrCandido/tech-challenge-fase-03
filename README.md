@@ -338,21 +338,3 @@ npm run web
 ```
 
 ---
-
-## 🤝 Contribuição
-
-1. Fork
-2. Branch
-3. Commit
-4. Push
-5. PR
-
----
-
-## 📄 Licença
-
-MIT
-
----
-
-Se quiser, posso dar um próximo passo e **melhorar esse README para nível profissional (com badges, imagens, GIFs e arquitetura visual)** — isso costuma impressionar bastante em avaliação de Tech Challenge.
