@@ -2,6 +2,8 @@
 
 Um aplicativo móvel para gerenciamento pessoal de transações financeiras, desenvolvido com React Native e Expo. Permite aos usuários rastrear entradas (depósitos) e saídas (transferências), visualizar saldo em tempo real, fazer upload de recibos e analisar dados financeiros através de dashboards interativos.
 
+---
+
 ## 🚀 Tecnologias Utilizadas
 
 ### Framework e Linguagem
@@ -29,6 +31,8 @@ Um aplicativo móvel para gerenciamento pessoal de transações financeiras, des
 
 - ESLint para linting de código
 - TypeScript para configuração de compilação
+
+---
 
 ## 📱 Funcionalidades Principais
 
@@ -61,43 +65,21 @@ Um aplicativo móvel para gerenciamento pessoal de transações financeiras, des
 - Vinculação de recibos às transações no Firestore
 - Visualização/download de links de recibos
 
+---
+
 ## 🏗️ Estrutura do Projeto
 
 ```
-├── app/                    # Páginas e navegação
-│   ├── _layout.tsx        # Layout raiz com lógica de roteamento
-│   ├── login.tsx          # Tela de login
-│   ├── register.tsx       # Tela de cadastro
-│   ├── new-transaction.tsx # Criar nova transação
-│   ├── edit-transaction.tsx # Editar transação
-│   └── (tabs)/            # Navegação por abas
-│       ├── _layout.tsx    # Configuração das abas
-│       ├── index.tsx      # Dashboard principal
-│       └── transacoes.tsx # Lista de transações
-├── components/            # Componentes reutilizáveis
-│   ├── BankHeader/        # Cabeçalho com saudação e saldo
-│   ├── FinancialDashboard/ # Dashboard financeiro
-│   ├── TransactionList/   # Lista de transações
-│   └── Header/           # Componentes de cabeçalho
-├── hooks/                 # Hooks customizados
-│   ├── useAuth.ts        # Gerenciamento de estado de auth
-│   ├── useBalance.ts     # Cálculo de saldo
-│   └── useTransactions.ts # Lista de transações
-├── services/              # Integração com backend
-│   ├── firebase.ts       # Configuração do Firebase
-│   ├── auth.ts           # Funções de autenticação
-│   ├── transactions.ts   # CRUD de transações
-│   └── receipts.ts       # Gerenciamento de recibos
-├── types/                 # Definições TypeScript
-│   └── index.ts          # Interfaces e tipos
-├── utils/                 # Funções utilitárias
-│   ├── financeUtils.ts   # Cálculos financeiros
-│   ├── formatCurrency.ts # Formatação de moeda BRL
-│   ├── formatters.ts     # Formatação de datas
-│   └── ...               # Outros utilitários
-└── mocks/                 # Dados mockados para desenvolvimento
-    └── transactions.ts   # Transações de exemplo
+├── app/
+├── components/
+├── hooks/
+├── services/
+├── types/
+├── utils/
+└── mocks/
 ```
+
+---
 
 ## 🛠️ Instalação e Execução
 
@@ -105,122 +87,272 @@ Um aplicativo móvel para gerenciamento pessoal de transações financeiras, des
 
 - Node.js (versão 18 ou superior)
 - npm ou yarn
-- Conta no Firebase (para configuração do backend)
+- Conta no Firebase
 
 ### Passos de Instalação
 
-1. **Clone o repositório**
+```bash
+git clone <url-do-repositorio>
+cd tech-challenge-fase3
+npm install
+```
 
-   ```bash
-   git clone <url-do-repositorio>
-   cd tech-challenge-fase3
-   ```
+Para rodar
 
-2. **Instale as dependências**
+```bash
+npm run start
+```
 
-   ```bash
-   npm install
-   ```
-
-3. **Configure o Firebase**
-   - Crie um projeto no [Firebase Console](https://console.firebase.google.com/)
-   - Habilite Authentication, Firestore e Storage
-   - Copie as configurações do SDK para `services/firebase.ts`
-
-4. **Inicie o aplicativo**
-   ```bash
-   npx expo start
-   ```
-
-### Opções de Execução
-
-- **Desenvolvimento**: `npx expo start` - Abre o menu do Expo CLI
-- **Android**: Pressione `a` no terminal do Expo
-- **iOS**: Pressione `i` no terminal do Expo (macOS necessário)
-- **Web**: Pressione `w` no terminal do Expo
+---
 
 ## 📖 Como Usar
 
 ### Primeiro Acesso
 
-1. Abra o app e vá para "Cadastrar"
-2. Preencha nome, email e senha
-3. Faça login com suas credenciais
+1. Vá para "Cadastrar"
+2. Crie sua conta
+3. Faça login
 
 ### Adicionando Transações
 
-1. Na aba "Transações", toque em "+" ou "Nova Transação"
-2. Selecione tipo (Depósito ou Transferência)
-3. Insira valor e descrição
-4. Opcionalmente, anexe um recibo
-5. Salve a transação
-
-### Visualizando Dados
-
-- **Dashboard**: Visualize saldo e gráfico de distribuição
-- **Transações**: Filtre por tipo e período
-- **Saldo**: Toque no ícone do olho para mostrar/ocultar
-
-## 🔧 Scripts Disponíveis
-
-```bash
-npm start          # Inicia o servidor de desenvolvimento
-npm run android    # Executa no emulador Android
-npm run ios        # Executa no simulador iOS
-npm run web        # Executa na web
-npm run reset-project # Reseta para projeto em branco
-```
-
-## 📊 Padrões Técnicos
-
-### Arquitetura
-
-- **Separação de responsabilidades**: Componentes, hooks, serviços e utilitários
-- **Assinaturas em tempo real**: Firestore listeners para atualização automática
-- **Gerenciamento de estado**: Hooks customizados para lógica de negócio
-- **Tipagem forte**: TypeScript em todo o projeto
-
-### Fluxo de Dados
-
-```
-Autenticação → Layout Raiz verifica estado
-    ↓
-useBalance → Assina transações do usuário
-    ↓
-Dashboard processa dados para gráficos
-    ↓
-Lista mostra transações filtradas
-    ↓
-Criação → Upload de recibo → Vinculação
-    ↓
-Sincronização via Firestore em tempo real
-```
-
-### Tratamento de Erros
-
-- Mapeamento de códigos de erro do Firebase para mensagens em português
-- Validação de formulários no frontend
-- Confirmações para ações destrutivas
-
-## 🌐 Recursos Adicionais
-
-- [Documentação do Expo](https://docs.expo.dev/)
-- [Firebase Documentation](https://firebase.google.com/docs)
-- [React Navigation](https://reactnavigation.org/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+1. Acesse "Transações"
+2. Clique em "Nova Transação"
+3. Preencha os dados
+4. (Opcional) Anexe recibo
 
 ---
 
-**Desenvolvido como parte do Tech Challenge - Fase 3**
+# 🔥 Integração com Firebase
+
+Este projeto utiliza o Firebase como backend para autenticação, persistência de dados e armazenamento de arquivos (recibos).
+A integração foi feita utilizando o SDK Web do Firebase com React Native (Expo).
+
+---
+
+## 🧩 Serviços utilizados
+
+### 🔐 Authentication
+
+- Cadastro de usuários
+- Login/logout
+- Controle de sessão
+
+**Método:** Email e senha
+
+---
+
+### 🗄️ Cloud Firestore
+
+- Armazena transações
+- Atualização em tempo real (`onSnapshot`)
+
+---
+
+### ☁️ Cloud Storage
+
+- Armazena recibos
+- Gera URLs públicas
+
+---
+
+## ⚙️ Configuração
+
+### Arquivo: `services/firebase.ts`
+
+```ts
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+```
+
+---
+
+## 🗂️ Estrutura de dados
+
+### Coleção: `transactions`
+
+```json
+{
+  "userId": "uid-do-usuario",
+  "type": "deposito",
+  "value": 500,
+  "description": "Depósito inicial",
+  "createdAt": "timestamp",
+  "receipt": {
+    "fileName": "recibo.png",
+    "storagePath": "receipts/{userId}/{transactionId}/arquivo.png",
+    "downloadURL": "https://...",
+    "contentType": "image/png"
+  }
+}
+```
+
+---
+
+## 🔄 Fluxo de transações
+
+### Criar
+
+- Salva no Firestore
+- Upload opcional no Storage
+
+### Listar
+
+```ts
+onSnapshot(query, callback);
+```
+
+### Editar
+
+- Atualiza dados
+- Pode substituir recibo
+
+### Remover
+
+- Remove do Firestore
+- Remove recibo (opcional)
+
+---
+
+## 📤 Upload de recibos
+
+```ts
+const receiptData = await uploadReceipt({
+  transactionId,
+  file,
+  fileName,
+  contentType,
+});
+
+await attachReceiptToTransaction(transactionId, receiptData);
+```
+
+**Path:**
+
+```
+receipts/{userId}/{transactionId}/{fileName}
+```
+
+---
+
+## 📥 Visualização
+
+Mobile:
+
+```ts
+Linking.openURL(url);
+```
+
+Web:
+
+```ts
+window.open(url, "_blank");
+```
+
+---
+
+## 🔐 Regras de segurança
+
+### Firestore
+
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /transactions/{transactionId} {
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+
+      allow read, update, delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+  }
+}
+```
+
+### Storage
+
+```js
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /receipts/{userId}/{transactionId}/{fileName} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+---
+
+## ⚠️ Pontos importantes
+
+- Autenticação obrigatória
+- Usuário acessa apenas seus dados
+- Usar `downloadURL`
+- Evitar passar URLs grandes
+
+---
+
+## 💰 Custos
+
+- ~5GB storage
+- ~1GB/dia download
+
+Plano Blaze só cobra uso excedente.
+
+---
+
+## 🐛 Problemas comuns
+
+- 403 → regras incorretas
+- Recibo não abre → URL errada
+- Erro 400 → URL quebrada
+
+---
+
+## 🔧 Scripts
+
+```bash
+npm start
+npm run android
+npm run ios
+npm run web
+```
+
+---
+
+## 🤝 Contribuição
+
+1. Fork
+2. Branch
+3. Commit
+4. Push
+5. PR
+
+---
+
+## 📄 Licença
+
+MIT
+
+---
+
+Se quiser, posso dar um próximo passo e **melhorar esse README para nível profissional (com badges, imagens, GIFs e arquitetura visual)** — isso costuma impressionar bastante em avaliação de Tech Challenge.
